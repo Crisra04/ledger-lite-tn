@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Ledger Lite — Terra Nostra</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1A2A">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand">
+      <span class="monogram">TN</span>
+      <h1>Ledger Lite</h1>
+    </div>
+    <button id="installBtn" class="btn ghost" title="Instalar en tu teléfono">Instalar</button>
+  </header>
+
+  <main class="container">
+    <section class="card gold-border">
+      <h2>Nuevo movimiento</h2>
+      <form id="txForm">
+        <div class="grid">
+          <label>Monto
+            <input type="number" step="0.01" id="amount" required>
+          </label>
+          <label>Tipo
+            <select id="type" required>
+              <option value="ingreso">Ingreso</option>
+              <option value="gasto">Gasto</option>
+              <option value="inversion">Inversión/Activo</option>
+              <option value="financiacion">Financiación (aportes, dividendos)</option>
+            </select>
+          </label>
+          <label>Grupo contable
+            <select id="group" required>
+              <option value="ventas">Ventas</option>
+              <option value="costos">Costo de ventas</option>
+              <option value="opex">Gastos operativos</option>
+              <option value="financieros">Financieros</option>
+              <option value="activos">Activos fijos</option>
+              <option value="patrimonio">Patrimonio</option>
+            </select>
+          </label>
+          <label>Categoría
+            <input id="category" list="catlist" placeholder="Meta Ads, Comisiones, Sueldos" required>
+          </label>
+          <datalist id="catlist"></datalist>
+          <label>Empresa/Proyecto (tag)
+            <input id="tag" list="taglist" placeholder="Homservi, Terra Nostra, Nexo">
+          </label>
+          <datalist id="taglist"></datalist>
+          <label>Moneda
+            <select id="currency">
+              <option value="BOB">BOB</option>
+              <option value="USD">USD</option>
+            </select>
+          </label>
+          <label>TC (BOB por USD)
+            <input type="number" step="0.0001" id="fx" value="6.96">
+          </label>
+          <label>Fecha
+            <input type="date" id="date">
+          </label>
+          <label>Deuda (opcional)
+            <select id="debtId">
+              <option value="">— Ninguna —</option>
+            </select>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="isInterest"> Es interés de deuda
+          </label>
+        </div>
+        <label>Notas
+          <textarea id="notes" rows="2" placeholder="detalle, proveedor, n° factura"></textarea>
+        </label>
+        <div class="row">
+          <button class="btn" type="submit">Guardar</button>
+          <button class="btn ghost" type="button" id="clearForm">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Deudas</h2>
+      <form id="debtForm" class="row">
+        <input id="debtName" placeholder="Nombre de la deuda / acreedor" required>
+        <select id="debtCurrency">
+          <option value="BOB">BOB</option>
+          <option value="USD">USD</option>
+        </select>
+        <input type="number" step="0.0001" id="debtFx" value="6.96" title="TC si es USD">
+        <button class="btn" type="submit">Crear deuda</button>
+      </form>
+      <div id="debtTable"></div>
+      <p class="muted">Para registrar: <b>Deuda recibida</b> = crear movimiento tipo <i>Ingreso</i>, grupo <i>Financieros</i>, con la deuda seleccionada.
+      <br><b>Pago de capital</b> = movimiento tipo <i>Gasto</i>, grupo <i>Financieros</i>, deuda seleccionada y <i>Es interés</i> desmarcado.
+      <br><b>Pago de interés</b> = movimiento tipo <i>Gasto</i>, grupo <i>Financieros</i>, deuda seleccionada y <i>Es interés</i> marcado.</p>
+    </section>
+
+    <section class="card">
+      <h2>Movimientos</h2>
+      <div class="row">
+        <input id="search" placeholder="Buscar por categoría/tag/notas">
+        <select id="filterTag"></select>
+        <select id="filterGroup">
+          <option value="">Todos</option>
+          <option value="ventas">Ventas</option>
+          <option value="costos">Costos</option>
+          <option value="opex">OPEX</option>
+          <option value="financieros">Financieros</option>
+          <option value="activos">Activos</option>
+          <option value="patrimonio">Patrimonio</option>
+        </select>
+        <select id="filterDebt">
+          <option value="">Todas las deudas</option>
+        </select>
+        <button class="btn ghost" id="exportJson">Exportar JSON</button>
+        <button class="btn ghost" id="exportCsv">Exportar CSV</button>
+        <label class="btn ghost file">
+          Importar JSON
+          <input type="file" id="importJson" accept="application/json">
+        </label>
+      </div>
+      <div id="txTable"></div>
+    </section>
+
+    <section class="card gold-border">
+      <h2>Panel financiero</h2>
+      <div class="row">
+        <label>Periodo
+          <input type="month" id="period">
+        </label>
+        <button class="btn" id="recalc">Recalcular</button>
+      </div>
+      <div class="grid-3">
+        <div>
+          <h3>EERR</h3>
+          <div id="plBox" class="kpi"></div>
+        </div>
+        <div>
+          <h3>Flujo de Caja</h3>
+          <div id="cfBox" class="kpi"></div>
+        </div>
+        <div>
+          <h3>Balance</h3>
+          <div id="bsBox" class="kpi"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Terra Nostra • Navy & Gold • Offline primero</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
